@@ -46,6 +46,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataDisplayControls\DataDisplayControlBase.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DataDisplayControls\DataDisplayControlBase.Designer.cs">
+      <DependentUpon>DataDisplayControlBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataDisplayControls\DecHexDataDisplayControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DataDisplayControls\DecHexDataDisplayControl.Designer.cs">
+      <DependentUpon>DecHexDataDisplayControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -8,14 +8,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using ModbusOne.DataDisplayControls;
+
 namespace ModbusOne
 {
 	public partial class ModbusReadDisplay : UserControl
 	{
-		private int COL_COUNT = 3;
+		private int COL_COUNT = 2;
 
-		private int ROW_HEIGHT = 15;
-		private int COL_WIDTH = 42;
+		private int ROW_HEIGHT = 17;
+		private int LABEL_COL_WIDTH = 42;
+		private int DATA_COL_WIDTH = 86;
 
 		private ushort baseAddress;
 		private TableLayoutPanel mainTable;
@@ -41,10 +44,9 @@ namespace ModbusOne
 					}
 				}
 
-				for( ushort index = 0; index < value.Length; index++)
-				{
-					SetValue( index, value[ index ] );
-				}
+				Array.Copy( value, data, value.Length);
+
+				SetValues( );
 			}
 		}
 
@@ -62,25 +64,15 @@ namespace ModbusOne
 			data = new ushort[ numRegisters ];
 		}
 
-		private string GetTextBoxName( ushort address, bool isDecimal )
+		private void SetValues( )
 		{
-			if ( isDecimal )
+			foreach ( Control control in mainTable.Controls )
 			{
-				return string.Format( "Dec{0}Textbox", address );
-            }
-			else
-			{
-				return string.Format( "Hex{0}Textbox", address );
-            }
-		}
-
-		private void SetValue( ushort index, ushort value )
-		{
-			int decIndex = mainTable.Controls.IndexOfKey( GetTextBoxName( ( ushort ) ( baseAddress + index ), true ) );
-			int hexIndex = mainTable.Controls.IndexOfKey( GetTextBoxName( ( ushort ) ( baseAddress + index ), false ) );
-
-			( ( TextBox ) mainTable.Controls[ decIndex ] ).Text = string.Format( "{0:D5}", value );
-			( ( TextBox ) mainTable.Controls[ hexIndex ] ).Text = string.Format( "{0:X4}", value );
+				if ( control is DataDisplayControlBase )
+				{
+					( ( DataDisplayControlBase ) control ).SetValue( data );
+				}
+			}
 		}
 
 		private void SetupControls( ushort baseAddress, ushort numRegisters )
@@ -94,9 +86,10 @@ namespace ModbusOne
 			mainTable.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
 
 			mainTable.ColumnCount = COL_COUNT;
-			for ( int column = 0; column < mainTable.ColumnCount; column++ )
+			mainTable.ColumnStyles.Add( new ColumnStyle( SizeType.Absolute, LABEL_COL_WIDTH ) );
+			for ( int column = 1; column < mainTable.ColumnCount; column++ )
 			{
-				mainTable.ColumnStyles.Add( new ColumnStyle( SizeType.Absolute, COL_WIDTH ) );
+				mainTable.ColumnStyles.Add( new ColumnStyle( SizeType.Absolute, DATA_COL_WIDTH ) );
 			}
 
 			mainTable.RowCount = numRegisters + 1;
@@ -106,19 +99,17 @@ namespace ModbusOne
 			}
 
 			mainTable.Controls.Add( MakeLabel( "AddressHeadingLabel", "Addr" ), 0, 0 );
-			mainTable.Controls.Add( MakeLabel( "DecHeadingLabel", "Dec" ), 1, 0 );
-			mainTable.Controls.Add( MakeLabel( "HexHeadingLabel", "Hex" ), 2, 0 );
+			mainTable.Controls.Add( MakeLabel( "DecHeadingLabel", "Data" ), 1, 0 );
 
 			for ( int i = 1; i < mainTable.RowCount; i++ )
 			{
 				ushort address = ( ushort ) ( baseAddress + i - 1 );
 
 				mainTable.Controls.Add( MakeLabel( string.Format( "Address{0}Label", address ), string.Format( "{0}", address ) ), 0, i );
-				mainTable.Controls.Add( MakeTextBox( GetTextBoxName( address, true ), true ), 1, i );
-				mainTable.Controls.Add( MakeTextBox( GetTextBoxName( address, false ), true ), 2, i );
+				mainTable.Controls.Add( new DecHexDataDisplayControl( string.Format( "Data{0}", i - 1 ), i - 1, DATA_COL_WIDTH, ROW_HEIGHT ) );
 			}
 
-			this.Size = new Size( ( COL_COUNT * ( COL_WIDTH + 1 ) ) + 1, ( mainTable.RowCount * ( ROW_HEIGHT + 1 ) ) + 1 );
+			this.Size = new Size( ( LABEL_COL_WIDTH + 1 ) + ( DATA_COL_WIDTH + 1 ) + 1, ( mainTable.RowCount * ( ROW_HEIGHT + 1 ) ) + 1 );
 
 			this.Controls.Add( mainTable );
 		}
@@ -136,23 +127,6 @@ namespace ModbusOne
 			label.Font = new Font( FontFamily.GenericMonospace, 8 );
 
 			return label;
-		}
-
-		private TextBox MakeTextBox( string name, bool readOnly )
-		{
-			TextBox box = new TextBox( );
-
-			box.Name = name;
-			box.ReadOnly = readOnly;
-			box.Enabled = !readOnly;
-			box.Dock = DockStyle.Fill;
-			box.TextAlign = HorizontalAlignment.Center;
-			box.Margin = new Padding( 0 );
-			box.Font = new Font( FontFamily.GenericMonospace, 8 );
-			box.Text = "00000";
-			box.BorderStyle = BorderStyle.None;
-
-			return box;
 		}
 	}
 }
