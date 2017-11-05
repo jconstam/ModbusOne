@@ -16,7 +16,7 @@ namespace ModbusOne
 		{
 			InitializeComponent( );
 
-			ModbusReadDisplay readDisplay1 = new ModbusReadDisplay( 1001, 10 );
+			ModbusReadDisplay readDisplay1 = new ModbusReadDisplay( 1001, 16 );
 
 			this.Controls.Add( readDisplay1 );
 		}

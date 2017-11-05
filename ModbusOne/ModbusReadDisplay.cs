@@ -14,8 +14,8 @@ namespace ModbusOne
 	{
 		private int COL_COUNT = 3;
 
-		private int ROW_HEIGHT = 20;
-		private int COL_WIDTH = 43;
+		private int ROW_HEIGHT = 15;
+		private int COL_WIDTH = 42;
 
 		public ModbusReadDisplay( ) : this( 205, 20 )
 		{
@@ -45,19 +45,54 @@ namespace ModbusOne
 				mainTable.RowStyles.Add( new RowStyle( SizeType.Absolute, ROW_HEIGHT ) );
 			}
 
+			mainTable.Controls.Add( MakeLabel( "AddressHeadingLabel", "Addr" ), 0, 0 );
+			mainTable.Controls.Add( MakeLabel( "DecHeadingLabel", "Dec" ), 1, 0 );
+			mainTable.Controls.Add( MakeLabel( "HexHeadingLabel", "Hex" ), 2, 0 );
+
 			for ( int i = 1; i < mainTable.RowCount; i++ )
 			{
-				Label rowLabel = new Label( );
-				rowLabel.Text = string.Format( "{0:00000}", baseAddress + i );
-				rowLabel.Dock = DockStyle.Fill;
-				rowLabel.TextAlign = ContentAlignment.MiddleCenter;
+				int address = baseAddress + i - 1;
 
-				mainTable.Controls.Add( rowLabel, 0, i );
+				mainTable.Controls.Add( MakeLabel( string.Format( "Address{0}Label", address ), string.Format( "{0}", address ) ), 0, i );
+				mainTable.Controls.Add( MakeTextBox( string.Format( "Dec{0}Textbox", address ), true ), 1, i );
+				mainTable.Controls.Add( MakeTextBox( string.Format( "Hex{0}Textbox", address ), true ), 2, i );
 			}
 
 			this.Size = new Size( ( COL_COUNT * ( COL_WIDTH + 1 ) ) + 1, ( mainTable.RowCount * ( ROW_HEIGHT + 1 ) ) + 1 );
 
 			this.Controls.Add( mainTable );
+		}
+
+		private Label MakeLabel( string name, string text )
+		{
+			Label label = new Label( );
+
+			label.Name = name;
+			label.Text = text;
+			label.Dock = DockStyle.Fill;
+			label.TextAlign = ContentAlignment.MiddleCenter;
+			label.Margin = new Padding( 0 );
+			label.Padding = new Padding( 0 );
+			label.Font = new Font( FontFamily.GenericMonospace, 8 );
+
+			return label;
+		}
+
+		private TextBox MakeTextBox( string name, bool readOnly )
+		{
+			TextBox box = new TextBox( );
+
+			box.Name = name;
+			box.ReadOnly = readOnly;
+			box.Enabled = !readOnly;
+			box.Dock = DockStyle.Fill;
+			box.TextAlign = HorizontalAlignment.Center;
+			box.Margin = new Padding( 0 );
+			box.Font = new Font( FontFamily.GenericMonospace, 8 );
+			box.Text = "00000";
+			box.BorderStyle = BorderStyle.None;
+
+			return box;
 		}
 	}
 }
