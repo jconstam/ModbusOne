@@ -16,9 +16,11 @@ namespace ModbusOne
 		{
 			InitializeComponent( );
 
-			ModbusReadDisplay readDisplay1 = new ModbusReadDisplay( 1001, 16 );
+			ModbusReadDisplay readDisplay1 = new ModbusReadDisplay( 1001, 5 );
 
 			this.Controls.Add( readDisplay1 );
+
+			readDisplay1.Data = new ushort[ ] { 5, 10, 15, 20, 25 };
 		}
 	}
 }
